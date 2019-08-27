@@ -58,7 +58,7 @@ const fs = require('fs');
 class loader {
 
     constructor (options = {}) {
-        let appDir = '../..';
+        let appDir = __dirname+'/../..';
         this.config = {
             //当作为模块引入时，根据路径关系，
             //可能的位置是node_modules/titbit-loader/loader.js，
