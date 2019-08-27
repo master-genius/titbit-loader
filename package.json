@@ -1,0 +1,25 @@
+{
+  "name": "titbit-loader",
+  "version": "1.0.0",
+  "description": "loader for titbit",
+  "main": "loader.js",
+  "scripts": {
+    "test": "echo 'hello'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/master-genius/titbit-loader.git"
+  },
+  "keywords": [
+    "tit",
+    "titbit",
+    "titbit-loader",
+    "loader"
+  ],
+  "author": "BraveWang",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/master-genius/titbit-loader/issues"
+  },
+  "homepage": "https://github.com/master-genius/titbit-loader#readme"
+}
