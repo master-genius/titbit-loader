@@ -58,12 +58,17 @@ const fs = require('fs');
 class loader {
 
     constructor (options = {}) {
+        let appDir = '../..';
         this.config = {
-            controllerPath : './controller',
-            modelPath : './model',
-            midwarePath : './middleware',
-            loadModel : true,
-            midwareDesc: './midware.js',
+            //当作为模块引入时，根据路径关系，
+            //可能的位置是node_modules/titbit-loader/loader.js，
+            //所以默认在父级目录两层和node_modules同级。
+            appPath         : appDir,
+            controllerPath  : appDir+'/controller',
+            modelPath       : appDir+'/model',
+            midwarePath     : appDir+'/middleware',
+            loadModel       : true,
+            midwareDesc     : appDir+'midware.js',
         };
 
         this.globalMidTable = {};
@@ -73,13 +78,21 @@ class loader {
         if (typeof options !== 'object') {
             options = {};
         }
+        if (options.appPath !== undefined) {
+            this.config.appPath = options.appPath;
+        }
+
         for (var k in options) {
+            if (k == 'appPath') { continue; }
+            if (k == 'loadModel') {
+                this.config.loadModel = options.loadModel;
+                continue;
+            }
             switch (k) {
                 case 'controllerPath':
                 case 'modelPath':
                 case 'midwarePath':
-                case 'loadModel':
-                    this.config[k] = options[k];
+                    this.config[k] = `${this.appPath}/${options[k]}`; break;
                 default:;
             }
         }
