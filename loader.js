@@ -68,6 +68,7 @@ class loader {
             midwarePath     : appDir+'/middleware',
             loadModel       : true,
             midwareDesc     : appDir+'midware.js',
+            indexFile       : 'index.js',
         };
 
         this.globalMidTable = {};
@@ -151,27 +152,37 @@ class loader {
         }
         var group = cf.dirgroup;
         var npre = cf.filegroup;
+        let routeParam = '/:id';
+        if (cob.param && typeof cob.param === 'string' && cob.param.length > 0)
+        {
+            routeParam = cob.param;
+            if (routeParam[0]!== '/') {
+                routeParam = `/${routeParam}`;
+            }
+        }
+
         if (cob.mode === 'restful') {
+            
             if (cob.create !== undefined && typeof cob.create === 'function') {
-                app.router.post(`${cf.filegroup}/:id`, cob.create.bind(cob),{
+                app.router.post(`${cf.filegroup}${routeParam}`, cob.create.bind(cob),{
                     name: cob.name_create || `${npre}/create`,
                     group: group
                 });
             }
             if (cob.delete !== undefined && typeof cob.delete === 'function') {
-                app.router.delete(`${cf.filegroup}/:id`, cob.delete.bind(cob),{
+                app.router.delete(`${cf.filegroup}${routeParam}`, cob.delete.bind(cob),{
                     name: cob.name_delete || `${npre}/delete`,
                     group: group
                 });
             }
             if (cob.update !== undefined && typeof cob.update === 'function') {
-                app.router.put(`${cf.filegroup}/:id`, cob.update.bind(cob),{
+                app.router.put(`${cf.filegroup}${routeParam}`, cob.update.bind(cob),{
                     name: cob.name_update || `${npre}/update`,
                     group: group
                 });
             }
             if (cob.get !== undefined && typeof cob.get === 'function') {
-                app.router.get(`${cf.filegroup}/:id`, cob.get.bind(cob),{
+                app.router.get(`${cf.filegroup}${routeParam}`, cob.get.bind(cob),{
                     name: cob.name_get || `${npre}/get`,
                     group: group
                 });
@@ -367,6 +378,15 @@ class loader {
                     } else {
                         this.groupMidTable[dirgroup] = require(cdir+'/'+files[i].name);
                     }
+                    continue;
+                }
+                if (files[i].name == this.config.indexFile && deep == 0) {
+                    cfiles['/'] = {
+                        filegroup:  '/',
+                        dirgroup:   '/',
+                        name:       '/',
+                        modname:    '/'
+                    };
                     continue;
                 }
                 tmp = this.stripExtName(files[i].name);
