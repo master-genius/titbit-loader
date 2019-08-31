@@ -10,7 +10,6 @@
 
 const fs = require('fs');
 
-
 /**
  * 路由映射方式：
  *  文件名就是路由，支持目录作为分组或者说是模块的名称，目录中的子目录则不会再加载。
@@ -324,7 +323,6 @@ class loader {
             }
             
         }
-        console.log(opts);
         app.use(this.getMidwareInstance(m), opts);
     }
 
