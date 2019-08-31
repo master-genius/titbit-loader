@@ -68,7 +68,6 @@ class loader {
             midwarePath     : appDir+'/middleware',
             loadModel       : true,
             midwareDesc     : appDir+'midware.js',
-            indexFile       : 'index.js',
         };
 
         this.globalMidTable = {};
@@ -197,7 +196,7 @@ class loader {
             if (cob.method === undefined) {
                 cob.method = 'GET';
             }
-            let cname = `${npre}/callback`;
+            let cname = `${npre}`;
             switch (cob.method) {
                 case 'GET':
                     app.router.get(cf.filegroup, cob.callback.bind(cob), {
@@ -298,6 +297,10 @@ class loader {
         if (m.group !== undefined) {
             opts.group = m.group;
         }
+
+        if (m.name !== undefined) {
+            opts.name = m.name;
+        }
         
         app.use(this.getMidwareInstance(m), opts);
     }
@@ -380,15 +383,7 @@ class loader {
                     }
                     continue;
                 }
-                if (files[i].name == this.config.indexFile && deep == 0) {
-                    cfiles['/'] = {
-                        filegroup:  '/',
-                        dirgroup:   '/',
-                        name:       '/',
-                        modname:    '/'
-                    };
-                    continue;
-                }
+
                 tmp = this.stripExtName(files[i].name);
                 cfiles[cdir+'/'+files[i].name] = {
                     filegroup: dirgroup + '/' + tmp,
