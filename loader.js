@@ -163,7 +163,7 @@ class loader {
         if (cob.mode === 'restful') {
             
             if (cob.create !== undefined && typeof cob.create === 'function') {
-                app.router.post(`${cf.filegroup}${routeParam}`, cob.create.bind(cob),{
+                app.router.post(`${cf.filegroup}`, cob.create.bind(cob),{
                     name: cob.name_create || `${npre}/create`,
                     group: group
                 });
