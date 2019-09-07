@@ -297,10 +297,6 @@ class loader {
         if (m.group !== undefined) {
             opts.group = m.group;
         }
-
-        if (m.name !== undefined) {
-            opts.name = m.name;
-        }
         
         app.use(this.getMidwareInstance(m), opts);
     }
