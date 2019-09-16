@@ -290,14 +290,22 @@ class loader {
         if (!m.name || m.name == '') {
             return;
         }
+        
         let opts = {};
         if (m.method !== undefined) {
             opts.method = m.method;
         }
+
         if (m.group !== undefined) {
+            if (m.group instanceof Array) {
+                for (let i=0; i<m.group.length; i++) {
+                    opts.group = m.group[i];
+                    app.use(this.getMidwareInstance(m), opts);
+                }
+                return ;
+            }
             opts.group = m.group;
         }
-        
         app.use(this.getMidwareInstance(m), opts);
     }
 
