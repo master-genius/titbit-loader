@@ -58,6 +58,19 @@ class loader {
 
     constructor (options = {}) {
         let appDir = __dirname+'/../..';
+        
+        this.globalMidTable = {};
+        this.groupMidTable = {};
+        this.fileMidTable = {};
+
+        if (typeof options !== 'object') {
+            options = {};
+        }
+        
+        if (options.appPath !== undefined) {
+            appDir = options.appPath;
+        }
+
         this.config = {
             //当作为模块引入时，根据路径关系，
             //可能的位置是node_modules/titbit-loader/loader.js，
@@ -68,18 +81,9 @@ class loader {
             midwarePath     : appDir+'/middleware',
             loadModel       : true,
             midwareDesc     : appDir+'midware.js',
+
+            deep : 1,
         };
-
-        this.globalMidTable = {};
-        this.groupMidTable = {};
-        this.fileMidTable = {};
-
-        if (typeof options !== 'object') {
-            options = {};
-        }
-        if (options.appPath !== undefined) {
-            this.config.appPath = options.appPath;
-        }
 
         for (var k in options) {
             if (k == 'appPath') { continue; }
@@ -87,6 +91,7 @@ class loader {
                 this.config.loadModel = options.loadModel;
                 continue;
             }
+
             switch (k) {
                 case 'controllerPath':
                 case 'modelPath':
@@ -111,14 +116,6 @@ class loader {
                 fs.mkdirSync(this.config.midwarePath);
             }
         }
-
-        try {
-            fs.accessSync(this.config.modelPath, fs.constants.F_OK);
-        } catch (err) {
-            if (this.config.modelPath.length > 0) {
-                fs.mkdirSync(this.config.modelPath);
-            }
-        }
         
     }
 
@@ -129,7 +126,6 @@ class loader {
             this.loadModel(app);
         }
     }
-
 
     loadController (app) {
         var cfiles = {};
@@ -199,34 +195,19 @@ class loader {
             let cname = `${npre}`;
             switch (cob.method) {
                 case 'GET':
-                    app.router.get(cf.filegroup, cob.callback.bind(cob), {
-                        name: cname,
-                        group: group
-                    });
-                    break;
                 case 'POST':
-                    app.router.post(cf.filegroup, cob.callback.bind(cob), {
-                        name: cname,
-                        group: group
-                    });
-                    break;
                 case 'DELETE':
-                    app.router.get(cf.filegroup, cob.callback.bind(cob), {
-                        name: cname,
-                        group: group
-                    });
-                    break;
                 case 'PUT':
-                    app.router.put(cf.filegroup, cob.callback.bind(cob), {
-                        name: cname,
-                        group: group
-                    });
-                    break;
                 case 'OPTIONS':
-                    app.router.options(cf.filegroup, cob.callback.bind(cob), {
-                        name: cname,
-                        group: group
-                    });
+                case 'PATCH':
+                case 'HEAD':
+                case 'TRACE':
+                    app.router[ cob.method.toLowerCase() ](
+                        cf.filegroup,
+                        cob.callback.bind(cob), {
+                            name: cname,
+                            group: group
+                        });
                     break;
                 default:;
             }
