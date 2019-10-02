@@ -277,11 +277,19 @@ class loader {
             opts.method = m.method;
         }
 
+        var makeOpts = function(groupname) {
+            let op = {};
+            if (m.method !== undefined) {
+                op.method = m.method;
+            }
+            op.group = groupname;
+            return op;
+        };
+
         if (m.group !== undefined) {
             if (m.group instanceof Array) {
                 for (let i=0; i<m.group.length; i++) {
-                    opts.group = m.group[i];
-                    app.use(this.getMidwareInstance(m), opts);
+                    app.use(this.getMidwareInstance(m), makeOpts(m.group[i]));
                 }
                 return ;
             }
