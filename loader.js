@@ -260,7 +260,7 @@ class loader {
                 mt = new tmp(m.args);
             }
             //bind this
-            mt = mt.middleware.bind(mt);
+            return mt.middleware.bind(mt);
         } else {
             mt = require(this.config.midwarePath+'/'+m.name);
         }
