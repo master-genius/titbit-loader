@@ -99,6 +99,9 @@ class loader {
             } else if (k === 'mname') {
                 this.config.mname = options.mname;
                 continue;
+            } else if (k === 'pre') {
+                this.config.grpre = options.pre;
+                continue;
             }
 
             switch (k) {
