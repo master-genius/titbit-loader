@@ -57,7 +57,7 @@ const fs = require('fs');
 class loader {
 
     constructor (options = {}) {
-        let appDir = __dirname+'/../..';
+        let appDir = './';
         
         this.globalMidTable = {};
         this.groupMidTable = {};
@@ -83,12 +83,18 @@ class loader {
             midwareDesc     : appDir+'midware.js',
 
             deep : 1,
+            mname : 'model',
         };
+
+        this.mdb = null; //在加载Model时可能需要传递参数
 
         for (var k in options) {
             if (k == 'appPath') { continue; }
             if (k == 'loadModel') {
                 this.config.loadModel = options.loadModel;
+                continue;
+            } else if (k === 'mname') {
+                this.config.mname = options.mname;
                 continue;
             }
 
@@ -115,6 +121,10 @@ class loader {
             if (this.config.midwarePath.length > 0) {
                 fs.mkdirSync(this.config.midwarePath);
             }
+        }
+
+        if (options.mdb !== undefined && this.config.loadModel) {
+            this.mdb = options.mdb;
         }
         
     }
@@ -337,8 +347,32 @@ class loader {
      * 加载数据库操作接口，一个表要对应一个js文件，
      * 默认没有模型关联的支持，这需要自己编写SQL语句。
      */
-    loadModel () {
+    loadModel (app) {
+        if (app.service[this.config.mname] === undefined) {
+            app.service[this.config.mname] = {};
+        }
+        try {
+            var mlist = fs.readdirSync(this.config.modelPath, {withFileTypes:true});
+            for (let i=0; i < mlist.length; i++) {
+                if (!mlist[i].isFile()) { continue; }
+                if (mlist[i].name.substring(mlist[i].name.length-3) !== '.js') {
+                    continue;
+                }
+                this.requireModel(app, mlist[i].name);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
 
+    requireModel(app, mfile) {
+        try {
+            let m = require(this.config.modelPath+'/'+mfile);
+            let mname = mfile.substring(0, mfile.length-3);
+            app.service[this.config.mname][mname] = new m(this.mdb);
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     stripExtName (filename) {
