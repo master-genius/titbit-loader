@@ -301,12 +301,12 @@ class loader {
             opts.method = m.method;
         }
 
-        var makeOpts = function(groupname) {
+        var makeOpts = (groupname) => {
             let op = {};
             if (m.method !== undefined) {
                 op.method = m.method;
             }
-            op.group = groupname;
+            op.group = this.config.grpre + groupname;
             return op;
         };
 
@@ -317,7 +317,7 @@ class loader {
                 }
                 return ;
             }
-            opts.group = m.group;
+            opts.group = this.config.grpre + m.group;
         }
         app.use(this.getMidwareInstance(m), opts);
     }
@@ -327,7 +327,7 @@ class loader {
             return;
         }
         var opts = {
-            group: group,
+            group: this.config.grpre + group,
         };
         if (m.method !== undefined) {
             opts.method = m.method;
@@ -337,7 +337,7 @@ class loader {
 
     loadFileMidware (app, m, f, group) {
         var opts = {
-            group: group,
+            group: this.config.grpre + group,
             name:[],
         };
 
