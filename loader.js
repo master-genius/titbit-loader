@@ -57,7 +57,9 @@ const fs = require('fs');
 class loader {
 
     constructor (options = {}) {
-        let appDir = './';
+        //let appDir = __dirname + '.';
+        let appDir = '.';
+        appDir = fs.realpathSync(appDir);
         
         this.globalMidTable = {};
         this.groupMidTable = {};
@@ -120,6 +122,14 @@ class loader {
         } catch (err) {
             if (this.config.midwarePath.length > 0) {
                 fs.mkdirSync(this.config.midwarePath);
+            }
+        }
+
+        try {
+            fs.accessSync(this.config.modelPath, fs.constants.F_OK);
+        } catch (err) {
+            if (this.config.modelPath.length > 0) {
+                fs.mkdirSync(this.config.modelPath);
             }
         }
 
