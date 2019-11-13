@@ -86,6 +86,7 @@ class loader {
 
             deep : 1,
             mname : 'model',
+            grpre : '', //分组前缀
         };
 
         this.mdb = null; //在加载Model时可能需要传递参数
@@ -165,7 +166,7 @@ class loader {
         if (cob.mode === undefined || cob.mode !== 'callback') {
             cob.mode = 'restful';
         }
-        var group = cf.dirgroup;
+        var group = this.config.grpre + cf.dirgroup;
         var npre = cf.filegroup;
         let routeParam = '/:id';
         if (cob.param && typeof cob.param === 'string' && cob.param.length > 0)
