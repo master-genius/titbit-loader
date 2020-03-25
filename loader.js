@@ -156,10 +156,14 @@ class loader {
     this.readControllers(this.config.controllerPath, cfiles);
     let cob = null;
     for (let k in cfiles) {
-      cob = require(k);
-      cob = new cob();
-      this.setRouter(app, cob, cfiles[k]);
-      cob = null;
+      try {
+        cob = require(k);
+        cob = new cob();
+        this.setRouter(app, cob, cfiles[k]);
+        cob = null;
+      } catch (err) {
+        console.log(err.message, k);
+      }
     }
 
     return cfiles;
