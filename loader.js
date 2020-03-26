@@ -412,7 +412,7 @@ class loader {
       let mname = mfile.substring(0, mfile.length-3);
       app.service[this.config.mname][mname] = new m(this.mdb);
     } catch (err) {
-      console.log(err);
+      console.log(err.message, ' -- ', mfile);
     }
   }
 
