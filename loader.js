@@ -162,7 +162,7 @@ class loader {
         this.setRouter(app, cob, cfiles[k]);
         cob = null;
       } catch (err) {
-        console.log(err.message, k);
+        console.error(err.message, k);
       }
     }
 
@@ -402,7 +402,7 @@ class loader {
         this.requireModel(app, mlist[i].name);
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -412,7 +412,7 @@ class loader {
       let mname = mfile.substring(0, mfile.length-3);
       app.service[this.config.mname][mname] = new m(this.mdb);
     } catch (err) {
-      console.log(err.message, ' -- ', mfile);
+      console.error(err.message, ' -- ', mfile);
     }
   }
 
