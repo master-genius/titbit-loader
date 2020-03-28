@@ -176,7 +176,9 @@ class loader {
     var group = this.config.grpre + cf.dirgroup;
     var npre = cf.filegroup;
     let routeParam = '/:id';
-    if (cob.param && typeof cob.param === 'string')
+    if (cob.param !== undefined
+      && cob.param !== null
+      && typeof cob.param === 'string')
     {
       routeParam = cob.param;
       if (routeParam[0]!== '/') {
