@@ -225,7 +225,7 @@ class loader {
         });
       }
       if (cob.options !== undefined && typeof cob.options === 'function') {
-        app.router.options(`${cf.filegroup}`, cob.options.bind(cob),{
+        app.router.options(`${cf.filegroup}${routeParam}`, cob.options.bind(cob),{
           name: cob.name_list || `${npre}/options`,
           group: group
         });
