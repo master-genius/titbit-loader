@@ -91,6 +91,8 @@ class loader {
 
     this.mdb = null; //在加载Model时可能需要传递参数
 
+    this.cargs = null; //如果你要在初始化controller时传递参数可以设置此变量，但是目前这个功能还没有开启。
+
     for (var k in options) {
       if (k == 'appPath') { continue; }
       if (k == 'loadModel') {
