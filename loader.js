@@ -363,7 +363,11 @@ class loader {
     if (m.method !== undefined) {
       opts.method = m.method;
     }
-    app.use(this.getMidwareInstance(m), opts);
+    let addmid = app.use;
+    if (m.ishook) {
+      addmid = app.addHook;
+    }
+    addmid(this.getMidwareInstance(m), opts);
   }
 
   loadFileMidware (app, m, f, group) {
