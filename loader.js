@@ -341,16 +341,21 @@ class loader {
       return op;
     };
 
+    let addmid = app.use;
+    if (m.ishook) {
+      addmid = app.addHook;
+    }
+
     if (m.group !== undefined) {
       if (m.group instanceof Array) {
         for (let i=0; i<m.group.length; i++) {
-          app.use(this.getMidwareInstance(m), makeOpts(m.group[i]));
+          addmid(this.getMidwareInstance(m), makeOpts(m.group[i]));
         }
         return ;
       }
       opts.group = this.config.grpre + m.group;
     }
-    app.use(this.getMidwareInstance(m), opts);
+    addmid(this.getMidwareInstance(m), opts);
   }
 
   loadGroupMidware(app, m, group) {
