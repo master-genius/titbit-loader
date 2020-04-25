@@ -192,7 +192,7 @@ class loader {
       
       if (cob.post !== undefined && typeof cob.post === 'function') {
         app.router.post(`${cf.filegroup}`, cob.post.bind(cob),{
-          name: cob.name_create || `${npre}/post`,
+          name: cob.name_post || `${npre}/post`,
           group: group
         });
       }
@@ -204,7 +204,7 @@ class loader {
       }
       if (cob.put !== undefined && typeof cob.put === 'function') {
         app.router.put(`${cf.filegroup}${routeParam}`, cob.put.bind(cob),{
-          name: cob.name_update || `${npre}/put`,
+          name: cob.name_put || `${npre}/put`,
           group: group
         });
       }
@@ -222,13 +222,13 @@ class loader {
       }
       if (cob.patch !== undefined && typeof cob.patch === 'function') {
         app.router.patch(`${cf.filegroup}`, cob.patch.bind(cob),{
-          name: cob.name_list || `${npre}/patch`,
+          name: cob.name_patch || `${npre}/patch`,
           group: group
         });
       }
       if (cob.options !== undefined && typeof cob.options === 'function') {
         app.router.options(`${cf.filegroup}${routeParam}`, cob.options.bind(cob),{
-          name: cob.name_list || `${npre}/options`,
+          name: cob.name_options || `${npre}/options`,
           group: group
         });
       }
