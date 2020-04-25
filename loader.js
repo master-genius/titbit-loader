@@ -341,9 +341,9 @@ class loader {
       return op;
     };
 
-    let addmid = app.use;
+    let addmid = app.use.bind(app);
     if (m.ishook) {
-      addmid = app.addHook;
+      addmid = app.addHook.bind(app);
     }
 
     if (m.group !== undefined) {
@@ -368,9 +368,9 @@ class loader {
     if (m.method !== undefined) {
       opts.method = m.method;
     }
-    let addmid = app.use;
+    let addmid = app.use.bind(app);
     if (m.ishook) {
-      addmid = app.addHook;
+      addmid = app.addHook.bind(app);
     }
     addmid(this.getMidwareInstance(m), opts);
   }
