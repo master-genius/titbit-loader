@@ -1,10 +1,10 @@
 {
   "name": "titbit-loader",
-  "version": "2.2.3",
+  "version": "20.5.21",
   "description": "loader for titbit",
   "main": "loader.js",
   "scripts": {
-    "test": "echo 'hello'"
+    "test": "echo 'hey'"
   },
   "repository": {
     "type": "git",

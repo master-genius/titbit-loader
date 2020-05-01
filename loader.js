@@ -87,14 +87,22 @@ class loader {
       deep : 1,
       mname : 'model',
       grpre : '', //分组前缀
+
+      //如果作为数组则会去加载指定的子目录
+      subgroup : null,
+
     };
 
-    this.mdb = null; //在加载Model时可能需要传递参数
+    //在加载Model时可能需要传递参数
+    this.mdb = null;
 
-    this.cargs = null; //如果你要在初始化controller时传递参数可以设置此变量，但是目前这个功能还没有开启。
+    //如果你要在初始化controller时传递参数可以设置此变量，但是目前这个功能还没有开启。
+    this.cargs = null;
 
-    for (var k in options) {
+    for (let k in options) {
+      
       if (k == 'appPath') { continue; }
+
       if (k == 'loadModel') {
         this.config.loadModel = options.loadModel;
         continue;
@@ -103,6 +111,11 @@ class loader {
         continue;
       } else if (k === 'pre') {
         this.config.grpre = options.pre;
+        continue;
+      } else if (k === 'subgroup') {
+        if (options[k] instanceof Array) {
+          this.config.subgroup = options[k];
+        }
         continue;
       }
 
@@ -382,8 +395,10 @@ class loader {
     };
 
     if (m.path === undefined) {
-      opts.name = [`${f}/create`, `${f}/update`,
-        `${f}/delete`,`${f}/get`,`${f}/list`,`${f}/callback`
+      opts.name = [`${f}/post`, `${f}/put`,
+        `${f}/delete`,`${f}/get`,`${f}/list`,
+        `${f}/options`, `${f}/patch`, `${f}/head`,
+        `${f}/callback`
       ];
     } else {
       if (typeof m.path === 'string') {
@@ -443,19 +458,34 @@ class loader {
    */
   readControllers (cdir, cfiles, deep = 0, dirgroup = '') {
     let files = fs.readdirSync(cdir, {withFileTypes:true});
+
     let tmp = '';
     for (let i=0; i<files.length; i++) {
+
       if (files[i].isDirectory() && deep < 1) {
+
         if (files[i].name[0] == '!') { continue; }
+
+        //检测是否启用了分组控制
+        //这时候，只有在subgroup之内的才会去加载
+        if (this.config.subgroup instanceof Array) {
+            if (this.config.subgroup.indexOf(files[i].name) < 0) {
+              continue;
+            }
+        }
+
         this.readControllers(cdir+'/'+files[i].name, 
           cfiles, deep+1,
           `${dirgroup}/${files[i].name}`
         );
+
       } else if (files[i].isFile()) {
         if (files[i].name.length < 4) { continue; }
+
         if (files[i].name.indexOf('.js') !== files[i].name.length - 3) {
           continue;
         }
+
         if (files[i].name == '__mid.js') {
           if (deep == 0) {
             this.globalMidTable = require(cdir+'/'+files[i].name);
