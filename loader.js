@@ -1,11 +1,3 @@
-/**
-  titbit-loader Copyright (C) 2019.08 BraveWang
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 3 of the License , or
-  (at your option) any later version.
- */
-
 'use strict';
 
 const fs = require('fs');
@@ -14,19 +6,6 @@ const fs = require('fs');
  * 路由映射方式：
  *  文件名就是路由，支持目录作为分组或者说是模块的名称，目录中的子目录则不会再加载。
  *  这样如果目录api中存在文件content.js，则路由为/api/content。
- * RESTFul模式：
- *  如果要使用RESTFul模式，则文件中必须存在以下一些方法：
- *    get
- *    list
- *    create
- *    update
- *    delete
- *  对应的路由就是：
- *    GET   /api/content/id
- *    GET   /api/content（不带id表示获取列表）
- *    POST  /api/content
- *    UPDATE  /api/content/id
- *    DELETE  /api/content/id
  * 一个控制器可以是一个function或 => 函数，也可以是一个class形式的闭包。
  * 总之，一个路由对应一个控制器，就是回调函数，而class需要实例化。
  * 因为class本质上也是function，并且即使function声明的函数，也是有可能需要实例化的，
@@ -45,13 +24,6 @@ const fs = require('fs');
  * 
  * 路由命名：
  *  默认情况，路由的名称是[目录-文件-方法名称]。
- */
-
-/**
- * 关于模型：model有时候并不是必须的，可能只是想做一些前端应用，
- * 或者通过其他机制，也可能是每个人使用model的习惯不太一样，
- * 无论如何，loader提供了是否加载model的选项，并且
- * 
  */
 
 class loader {
@@ -86,7 +58,6 @@ class loader {
 
       deep : 1,
       mname : 'model',
-      grpre : '', //分组前缀
 
       //如果作为数组则会去加载指定的子目录
       subgroup : null,
@@ -108,9 +79,6 @@ class loader {
         continue;
       } else if (k === 'mname') {
         this.config.mname = options.mname;
-        continue;
-      } else if (k === 'pre') {
-        this.config.grpre = options.pre;
         continue;
       } else if (k === 'subgroup') {
         if (options[k] instanceof Array) {
@@ -188,7 +156,7 @@ class loader {
     if (cob.mode === undefined || cob.mode !== 'callback') {
       cob.mode = 'restful';
     }
-    var group = this.config.grpre + cf.dirgroup;
+    var group = cf.dirgroup;
     var npre = cf.filegroup;
     let routeParam = '/:id';
     if (cob.param !== undefined
@@ -300,7 +268,7 @@ class loader {
       this.loadGlobalMidware(app, this.globalMidTable[i]);
     }
     //加载组，此时组已经确定
-    for (var k in this.groupMidTable) {
+    for (let k in this.groupMidTable) {
       for (let i=0; i<this.groupMidTable[k].length; i++) {
         this.loadGroupMidware(app, this.groupMidTable[k][i], k);
       }
@@ -340,24 +308,24 @@ class loader {
       return;
     }
     
-    let opts = {};
-    if (m.method !== undefined) {
-      opts.method = m.method;
-    }
+    let opts = null;
 
-    var makeOpts = (groupname) => {
+    var makeOpts = (groupname = null) => {
       let op = {};
       if (m.method !== undefined) {
         op.method = m.method;
       }
-      op.group = this.config.grpre + groupname;
+      if (groupname) {
+        op.group = groupname;
+      }
+      //兼容doio和tibit，doio目前支持layer层级first和second。
+      if (m.ishook || m.layer) {
+        op.layer = m.layer || 'first';
+      }
       return op;
     };
 
     let addmid = app.use.bind(app);
-    if (m.ishook) {
-      addmid = app.addHook.bind(app);
-    }
 
     if (m.group !== undefined) {
       if (m.group instanceof Array) {
@@ -366,8 +334,9 @@ class loader {
         }
         return ;
       }
-      opts.group = this.config.grpre + m.group;
     }
+    
+    opts = makeOpts(m.group || null);
     addmid(this.getMidwareInstance(m), opts);
   }
 
@@ -375,22 +344,23 @@ class loader {
     if (!m.name || m.name == '') {
       return;
     }
-    var opts = {
-      group: this.config.grpre + group,
+    let opts = {
+      group: group,
     };
     if (m.method !== undefined) {
       opts.method = m.method;
     }
-    let addmid = app.use.bind(app);
-    if (m.ishook) {
-      addmid = app.addHook.bind(app);
+    if (m.ishook || m.layer) {
+      opts.layer = m.layer || 'first';
     }
+
+    let addmid = app.use.bind(app);
     addmid(this.getMidwareInstance(m), opts);
   }
 
   loadFileMidware (app, m, f, group) {
-    var opts = {
-      group: this.config.grpre + group,
+    let opts = {
+      group: group,
       name:[],
     };
 
@@ -409,7 +379,13 @@ class loader {
       }
       
     }
-    app.use(this.getMidwareInstance(m), opts);
+
+    if (m.ishook || m.layer) {
+      opts.layer = m.layer || 'first';
+    }
+
+    let addmid = app.use.bind(app);
+    addmid(this.getMidwareInstance(m), opts);
   }
 
   /**
