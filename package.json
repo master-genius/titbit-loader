@@ -1,6 +1,6 @@
 {
   "name": "titbit-loader",
-  "version": "20.6.2",
+  "version": "20.6.3",
   "description": "loader for titbit and doio",
   "main": "loader.js",
   "scripts": {

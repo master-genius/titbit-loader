@@ -456,6 +456,7 @@ class loader {
         );
 
       } else if (files[i].isFile()) {
+        if (files[i].name[0] == '!') {continue;}
         if (files[i].name.length < 4) { continue; }
 
         if (files[i].name.indexOf('.js') !== files[i].name.length - 3) {
