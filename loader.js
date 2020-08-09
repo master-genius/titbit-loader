@@ -62,6 +62,8 @@ class loader {
       //如果作为数组则会去加载指定的子目录
       subgroup : null,
 
+      postArgs : false,
+
     };
 
     //在加载Model时可能需要传递参数
@@ -84,6 +86,9 @@ class loader {
         if (options[k] instanceof Array) {
           this.config.subgroup = options[k];
         }
+        continue;
+      } else if (k === 'postArgs') {
+        this.config.postArgs = options[k];
         continue;
       }
 
@@ -172,7 +177,7 @@ class loader {
     if (cob.mode === 'restful') {
       
       if (cob.post !== undefined && typeof cob.post === 'function') {
-        app.router.post(`${cf.filegroup}`, cob.post.bind(cob),{
+        app.router.post(`${cf.filegroup}${this.config.postArgs ? routeParam : ''}`, cob.post.bind(cob),{
           name: cob.name_post || `${npre}/post`,
           group: group
         });
