@@ -323,9 +323,9 @@ class loader {
       if (groupname) {
         op.group = groupname;
       }
-      //兼容doio和tibit，doio目前支持layer层级first和second。
-      if (m.ishook || m.layer) {
-        op.layer = m.layer || 'first';
+
+      if (m.ishook) {
+        op.hook = true;
       }
       return op;
     };
@@ -355,8 +355,8 @@ class loader {
     if (m.method !== undefined) {
       opts.method = m.method;
     }
-    if (m.ishook || m.layer) {
-      opts.layer = m.layer || 'first';
+    if (m.ishook) {
+      opts.hook = true;
     }
 
     let addmid = app.use.bind(app);
@@ -385,8 +385,8 @@ class loader {
       
     }
 
-    if (m.ishook || m.layer) {
-      opts.layer = m.layer || 'first';
+    if (m.ishook) {
+      opts.hook = true;
     }
 
     let addmid = app.use.bind(app);
