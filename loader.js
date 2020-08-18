@@ -164,10 +164,7 @@ class loader {
     var group = cf.dirgroup;
     var npre = cf.filegroup;
     let routeParam = '/:id';
-    if (cob.param !== undefined
-      && cob.param !== null
-      && typeof cob.param === 'string')
-    {
+    if (cob.param !== undefined && cob.param !== null && typeof cob.param === 'string') {
       routeParam = cob.param;
       if (routeParam[0]!== '/') {
         routeParam = `/${routeParam}`;
@@ -324,8 +321,8 @@ class loader {
         op.group = groupname;
       }
 
-      if (m.ishook) {
-        op.hook = true;
+      if (m.pre) {
+        op.pre = true;
       }
       return op;
     };
@@ -355,8 +352,8 @@ class loader {
     if (m.method !== undefined) {
       opts.method = m.method;
     }
-    if (m.ishook) {
-      opts.hook = true;
+    if (m.pre) {
+      opts.pre = true;
     }
 
     let addmid = app.use.bind(app);
@@ -385,8 +382,8 @@ class loader {
       
     }
 
-    if (m.ishook) {
-      opts.hook = true;
+    if (m.pre) {
+      opts.pre = true;
     }
 
     let addmid = app.use.bind(app);
