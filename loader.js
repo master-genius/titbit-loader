@@ -64,6 +64,8 @@ class loader {
 
       postArgs : false,
 
+      transmitApp : true,
+
     };
 
     //在加载Model时可能需要传递参数
@@ -87,8 +89,8 @@ class loader {
           this.config.subgroup = options[k];
         }
         continue;
-      } else if (k === 'postArgs') {
-        this.config.postArgs = options[k];
+      } else if (k === 'postArgs' || k === 'transmitApp') {
+        this.config[k] = options[k];
         continue;
       }
 
@@ -96,7 +98,9 @@ class loader {
         case 'controllerPath':
         case 'modelPath':
         case 'midwarePath':
-          this.config[k] = `${this.appPath}/${options[k]}`; break;
+          this.config[k] = `${this.appPath}/${options[k]}`;
+          break;
+
         default:;
       }
     }
@@ -146,6 +150,11 @@ class loader {
     for (let k in cfiles) {
       try {
         cob = require(k);
+        /* if (this.config.transmitApp) {
+          cob = new cob(app);
+        } else {
+          cob = new cob();
+        } */
         cob = new cob();
         this.setRouter(app, cob, cfiles[k]);
         cob = null;
