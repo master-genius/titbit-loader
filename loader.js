@@ -98,7 +98,9 @@ class loader {
         case 'controllerPath':
         case 'modelPath':
         case 'midwarePath':
-          this.config[k] = `${this.appPath}/${options[k]}`;
+          if (options[k][0] !== '/') {
+            this.config[k] = `${this.config.appPath}/${options[k]}`;
+          }
           break;
 
         default:;
