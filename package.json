@@ -1,14 +1,14 @@
 {
   "name": "titbit-loader",
-  "version": "21.0.3",
-  "description": "loader for titbit and doio",
+  "version": "21.0.4",
+  "description": "loader for titbit framework",
   "main": "loader.js",
   "scripts": {
-    "test": "echo 'hey, no test'"
+    "test": "echo 'test ok'"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/master-genius/titbit-loader.git"
+    "url": "https://gitee.com/daoio/titbit-loader"
   },
   "keywords": [
     "tit",
@@ -21,7 +21,7 @@
   "author": "BraveWang",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/master-genius/titbit-loader/issues"
+    "url": "https://gitee.com/daoio/titbit-loader/issues"
   },
-  "homepage": "https://github.com/master-genius/titbit-loader#readme"
+  "homepage": "https://gitee.com/daoio/titbit-loader/blob/master/README.md"
 }
