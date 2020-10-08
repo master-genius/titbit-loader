@@ -40,11 +40,14 @@ class loader {
       options = {};
     }
     
-    if (options.appPath !== undefined) {
+    if (options.appPath !== undefined && typeof options.appPath === 'string') {
       appDir = options.appPath;
     }
 
-    appDir = fs.realpathSync(appDir);
+    if (appDir.length > 0 && appDir[0] !== '/') {
+      appDir = fs.realpathSync(appDir);
+    }
+
     this.config = {
       //当作为模块引入时，根据路径关系，
       //可能的位置是node_modules/titbit-loader/loader.js，
