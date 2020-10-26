@@ -193,3 +193,101 @@ module.exports = [
 ];
 
 ```
+
+## 高级功能
+
+这部分功能相对要麻烦点，但是可以应对比较复杂的情况。
+
+### 分组的名称
+
+如果通过输出测试可以看到中间件分组，只是比较麻烦，在titbit-loader加载时，采用了非常简单的机制，controller所在目录，即为根分组，名字是：/。其他都是目录名字作为分组名称，但是都以/开头。
+
+比如以下目录结构：
+
+```
+controller/:
+  a.js
+  ...
+  api/:
+    user.js
+    ...
+  admin/:
+    user.js
+    ...
+```
+
+a.js所在分组是/。user.js所在分组是/api，这样，不通过titbit-loader加载的中间件，也可以指定分组，可以对相关分组生效。
+
+
+### 加载中间件时传递参数
+
+对于中间件是class的情况，有时还需要传递参数，这时候，可以通过__mid.js中的args属性来指定：
+
+```
+module.exports = [
+  {
+    name : '@apilimit',
+    args : {
+      maxLimit: 100,
+      timeout: 56000
+    }
+  }
+
+]
+```
+
+这在初始化apilimit实例时，会传递args参数。
+
+### 加载全局中间件时指定分组
+
+注意：只有在全局的__mid.js中才会有效，其他都会忽略。因为除了全局中间件，其他的目录下都已经确定了分组。
+
+```
+module.exports = [
+  {
+    name : '@apilimit',
+    group: ['/api', '/call', '/']
+  }
+]
+```
+
+**别忘了指定分组时，开头的/。**
+
+### 只对文件中的某些请求启用中间件
+
+比如，有controller/a.js文件，只对其中的post和put请求启用限制body大小的中间件，则可以在class中提供__mid函数：
+
+``` JavaScript
+
+class a {
+
+  constructor () {
+
+  }
+
+  async get (c) {
+    //...
+  }
+
+  async post (c) {
+    //...
+  }
+
+  async put (c) {
+    //...
+  }
+
+  __mid () {
+    return [
+      {
+        name : 'setMaxBody',
+        pre: true,
+        //只对post和put函数启用，而且只有请求/a路径时才会生效。
+        path : ['post', 'put']
+      }
+    ]
+  }
+
+}
+
+```
