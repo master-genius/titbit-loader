@@ -62,6 +62,9 @@ class loader {
       deep : 1,
       mname : 'model',
 
+      //model直接挂载到service上，不在model子对象上。
+      directModel: false,
+
       //如果作为数组则会去加载指定的子目录
       subgroup : null,
 
@@ -92,7 +95,7 @@ class loader {
           this.config.subgroup = options[k];
         }
         continue;
-      } else if (k === 'postArgs' || k === 'transmitApp') {
+      } else if (k === 'postArgs' || k === 'transmitApp' || k === 'directModel') {
         this.config[k] = options[k];
         continue;
       }
@@ -419,6 +422,12 @@ class loader {
         if (mlist[i].name.substring(mlist[i].name.length-3) !== '.js') {
           continue;
         }
+
+        //!开头的命名不导出
+        if (mlist[i].name[0] === '!') {
+          continue;
+        }
+
         this.requireModel(app, mlist[i].name);
       }
     } catch (err) {
@@ -429,8 +438,18 @@ class loader {
   requireModel(app, mfile) {
     try {
       let m = require(this.config.modelPath+'/'+mfile);
+
+      let mobj = this.mdb ? new m(this.mdb) : new m();
+
       let mname = mfile.substring(0, mfile.length-3);
-      app.service[this.config.mname][mname] = new m(this.mdb);
+      if (this.config.directModel) {
+        if (app.service[mname] !== undefined) {
+          console.error(`Warning: model conflict ---- ${mname}.js already set`);
+        }
+        app.service[mname] = mobj;
+      } else {
+        app.service[this.config.mname][mname] = mobj;
+      }
     } catch (err) {
       console.error(err.message, ' -- ', mfile);
     }
@@ -456,7 +475,9 @@ class loader {
 
       if (files[i].isDirectory() && deep < 1) {
 
-        if (files[i].name[0] == '!') { continue; }
+        if (files[i].name[0] == '!') {
+          continue;
+        }
 
         //检测是否启用了分组控制
         //这时候，只有在subgroup之内的才会去加载

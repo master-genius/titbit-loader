@@ -65,8 +65,9 @@ module.exports = test;
 
 ```
 
-
 ## 加载model
+
+默认加载的model的名字就是文件名，没有.js。并且都在app.service.model对象中。但是你可以传递mname选项更改model的名字，或者设置选项directModel为true让model文件直接挂载到app.service上。
 
 ``` JavaScript
 const titbit = require('titbit');
@@ -80,10 +81,46 @@ var app = new titbit({
   debug: true        
 });
 
+
+
 var tbl = new tbloader({
-  //默认就是true
+  //默认就是true，默认通过app.service.model可以获取。
   loadModel: true, 
-  mdb: new pg.Pool(dbconfig);
+  //设置了mdb，在你的model文件中初始化时会传递此参数。
+  mdb: new pg.Pool(dbconfig),
+  //设置了mname，则要通过app.service.m获取。
+  mname: 'm'
+});
+
+tbl.init(app);
+
+app.run(2022);
+
+```
+
+## 直接把model挂载到app.service
+
+开启directModel选项，则会在初始化model时候把实例直接挂载到app.service。而在请求上下文中，则可以通过c.service访问，c.service指向app.service。这种依赖注入方式在titbit框架的文档中有说明。
+
+``` JavaScript
+
+const titbit = require('titbit');
+const tbloader = require('titbit-loader');
+const dbconfig = require('./dbconfig');
+
+//postgresql数据库的扩展
+const pg = require('pg');
+
+var app = new titbit({
+  debug: true        
+});
+
+var tbl = new tbloader({
+  //默认就是true，默认通过app.service.model可以获取。
+  loadModel: true, 
+  mdb: new pg.Pool(dbconfig),
+  //直接挂载到app.service
+  directModel: true
 });
 
 tbl.init(app);
@@ -291,3 +328,33 @@ class a {
 }
 
 ```
+
+### 不导出controller和model
+
+在controller和model目录中的文件，如果不想导出，则可以命名文件开头加上!（英文符号）。这时候会忽略此文件。
+
+### 导出controller中的某些分组
+
+通过subgroup选项可以指定要加载哪些目录下的路由文件，注意这对在controller目录中的文件无效，这些文件是一定会加载的，只有在controller中的子目录才会有效，比如在controller中存在三个目录和文件：
+
+```
+abc/ bcd/ xyz/ a.js
+```
+
+如果只想加载xyz则可以这样做：
+
+``` JavaScript
+
+var app = new titbit({
+  debug: true
+});
+
+var tbl = new tbloader({
+  subgroup: ['xyz']
+});
+
+tbl.init(app);
+
+```
+
+这时候会加载xyz目录中的文件以及a.js。
