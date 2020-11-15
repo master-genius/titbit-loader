@@ -72,6 +72,8 @@ class loader {
 
       transmitApp : true,
 
+      homeFile: 'home.js'
+
     };
 
     //在加载Model时可能需要传递参数
@@ -96,6 +98,9 @@ class loader {
         }
         continue;
       } else if (k === 'postArgs' || k === 'transmitApp' || k === 'directModel') {
+        this.config[k] = options[k];
+        continue;
+      } else if (k === 'homeFile' && typeof options[k] === 'string') {
         this.config[k] = options[k];
         continue;
       }
@@ -178,6 +183,10 @@ class loader {
     if (cob.mode === undefined || cob.mode !== 'callback') {
       cob.mode = 'restful';
     }
+    if (cob.routeName === undefined || typeof cob.routeName !== 'object') {
+      cob.routeName = {};
+    }
+
     var group = cf.dirgroup;
     var npre = cf.filegroup;
     let routeParam = '/:id';
@@ -192,46 +201,57 @@ class loader {
       
       if (cob.post !== undefined && typeof cob.post === 'function') {
         app.router.post(`${cf.filegroup}${this.config.postArgs ? routeParam : ''}`, cob.post.bind(cob),{
-          name: cob.name_post || `${npre}/post`,
+          name: cob.routeName.post || `${npre}/post`,
           group: group
         });
       }
       if (cob.delete !== undefined && typeof cob.delete === 'function') {
         app.router.delete(`${cf.filegroup}${routeParam}`, cob.delete.bind(cob),{
-          name: cob.name_delete || `${npre}/delete`,
+          name: cob.routeName.delete || `${npre}/delete`,
           group: group
         });
       }
       if (cob.put !== undefined && typeof cob.put === 'function') {
         app.router.put(`${cf.filegroup}${routeParam}`, cob.put.bind(cob),{
-          name: cob.name_put || `${npre}/put`,
+          name: cob.routeName.put || `${npre}/put`,
           group: group
         });
       }
+
       if (cob.get !== undefined && typeof cob.get === 'function') {
         app.router.get(`${cf.filegroup}${routeParam}`, cob.get.bind(cob),{
-          name: cob.name_get || `${npre}/get`,
+          name: cob.routeName.get || `${npre}/get`,
           group: group
         });
+        //主页只支持GET请求
+        if (this.config.homeFile === cf.pathname) {
+          app.router.get('/', cob.get.bind(cob), {
+            name: 'home',
+            group: group
+          });
+        }
       }
       if (cob.list !== undefined && typeof cob.list === 'function') {
         app.router.get(`${cf.filegroup}`, cob.list.bind(cob),{
-          name: cob.name_list || `${npre}/list`,
+          name: cob.routeName.list || `${npre}/list`,
           group: group
         });
       }
+
       if (cob.patch !== undefined && typeof cob.patch === 'function') {
         app.router.patch(`${cf.filegroup}`, cob.patch.bind(cob),{
-          name: cob.name_patch || `${npre}/patch`,
+          name: cob.routeName.patch || `${npre}/patch`,
           group: group
         });
       }
+
       if (cob.options !== undefined && typeof cob.options === 'function') {
         app.router.options(`${cf.filegroup}${routeParam}`, cob.options.bind(cob),{
-          name: cob.name_options || `${npre}/options`,
+          name: cob.routeName.options || `${npre}/options`,
           group: group
         });
       }
+      
     } else {
       if (cob.method === undefined) {
         cob.method = 'GET';
@@ -493,10 +513,10 @@ class loader {
         );
 
       } else if (files[i].isFile()) {
-        if (files[i].name[0] == '!') {continue;}
+        if (files[i].name[0] === '!') {continue;}
         if (files[i].name.length < 4) { continue; }
 
-        if (files[i].name.indexOf('.js') !== files[i].name.length - 3) {
+        if (files[i].name.substring(files[i].name.length-3) !== '.js') {
           continue;
         }
 
@@ -514,7 +534,8 @@ class loader {
           filegroup: dirgroup + '/' + tmp,
           dirgroup: dirgroup || '/',
           name: files[i].name,
-          modname: tmp
+          modname: tmp,
+          pathname : `${dirgroup}${dirgroup ? '/' : ''}${files[i].name}`
         };
       }
     }

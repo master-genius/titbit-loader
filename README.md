@@ -129,6 +129,35 @@ app.run(2022);
 
 ```
 
+## 指定主页文件
+
+你应该已经注意到了，因为文件要映射路径，所以，对于主页来说，需要添加的/路径是不能在文件名中体现的，所以需要指定一个文件，并添加get方法作为主页。默认为home.js。
+
+``` JavaScript
+
+const titbit = require('titbit')
+const tbloader = require('titbit-loader')
+
+var app = new titbit({
+  debug: true
+})
+
+var tbl = new tbloader({
+  //默认是home.js，并且只有GET请求，主页不允许其他请求
+  homeFile : 'home.js',
+
+  //如果要指定子目录的文件，则要使用这样的形式
+  //homeFile : 'user/home.js'
+});
+
+tbl.init(app)
+
+app.run(2022)
+
+```
+
+如果你不想让homeFile起作用，则只需要给一个空字符串。
+
 ## 指定加载目录
 
 ``` JavaScript
