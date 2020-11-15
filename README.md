@@ -74,6 +74,8 @@ module.exports = test;
 
 默认加载的model的名字就是文件名，没有.js。并且都在app.service.model对象中。但是你可以传递mname选项更改model的名字，或者设置选项directModel为true让model文件直接挂载到app.service上。
 
+**controller中不要写太复杂的业务逻辑，这部分你应该放在model中，对于model，如何封装，是否再分层都可以自定义。titbit-loader只是加载并放在app.service中，仅此而已。**
+
 ``` JavaScript
 const titbit = require('titbit');
 const tbloader = require('titbit-loader');
@@ -85,7 +87,6 @@ const pg = require('pg');
 var app = new titbit({
   debug: true        
 });
-
 
 
 var tbl = new tbloader({
