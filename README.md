@@ -4,7 +4,12 @@
 
 基于此可实现MVC或类MVC的结构，并可以快速开发接口，生成RESTFul风格的API，路由映射文件等操作。
 
-默认情况，会在当前目录创建controller、middleware目录。之后就可以在controller中编写class。
+默认情况，会在当前目录创建controller、middleware、model目录。之后就可以在controller中编写class。
+
+> titbit-loader只是做了应该手动设定路由和安排中间件的部分，把这部分自动化了，在服务运行后，titbit-loader的作用就结束了。
+
+> 此扩展从一开始，不是为了开发单体复杂的软件准备的，只是为了解决在中小规模的应用上，可以方便组织代码结构。但是，做到上百个Model、几百个路由、上百个中间件组装成一个复杂的应用也没有问题。
+
 
 使用titbit-loader需要先安装titbit框架：
 
@@ -387,3 +392,5 @@ tbl.init(app);
 ```
 
 这时候会加载xyz目录中的文件以及a.js。
+
+> 对于大规模应用来说，你最好是进行服务拆分，不过不是微服务，根据业务进行拆分是个比较好的选择。这个时候，titbit+titbit-loader组成一个服务处理业务，然后再把多个这样的应用组合完成更大规模的处理。
