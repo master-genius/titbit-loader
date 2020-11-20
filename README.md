@@ -266,6 +266,27 @@ module.exports = [
 
 ```
 
+#### 直接指定中间件
+
+在 v21.3.0版本开始，可以通过middleware属性直接指定中间件。
+
+``` JavaScript
+
+//文件__mid.js
+
+let mt = async (c, next) => {
+  console.log(`mt run ${(new Date()).toLocaleString()}`)
+  await next()
+}
+
+module.exports = [
+  {
+    middleware: mt
+  }
+]
+
+```
+
 ## 高级功能
 
 这部分功能相对要麻烦点，但是可以应对比较复杂的情况。
