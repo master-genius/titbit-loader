@@ -409,7 +409,6 @@ class loader {
       opts.pre = true;
     }
 
-    //let addmid = app.use.bind(app);
     let mobj = this.getMidwareInstance(m);
     if (mobj) {
       app.use(mobj, opts);
