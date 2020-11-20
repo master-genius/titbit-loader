@@ -172,7 +172,7 @@ class loader {
         this.setRouter(app, cob, cfiles[k]);
         cob = null;
       } catch (err) {
-        console.error(err.message, k);
+        console.error('Error: load router => ', err.message, k);
       }
     }
 
@@ -441,7 +441,6 @@ class loader {
       opts.pre = true;
     }
 
-    //let addmid = app.use.bind(app);
     let mobj = this.getMidwareInstance(m);
     if (mobj) {
       app.use(mobj, opts);
