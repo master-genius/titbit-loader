@@ -325,6 +325,18 @@ class loader {
   }
 
   getMidwareInstance(m) {
+    if (m.middleware !== undefined 
+      && typeof m.middleware === 'function' 
+      && m.middleware.constructor.name === 'AsyncFunction')
+    {
+      return m.middleware;
+    }
+
+    if (typeof m.name !== 'string' || m.name.trim() === '') {
+      console.error(`--Middleware Error--: less name.`);
+      return null;
+    }
+
     var mt = null;
     let tmp = null;
     if (m.name[0] == '@') {
@@ -343,9 +355,6 @@ class loader {
   }
 
   loadGlobalMidware (app, m) {
-    if (!m.name || m.name == '') {
-      return;
-    }
     
     let opts = null;
 
@@ -363,24 +372,31 @@ class loader {
       }
       return op;
     };
-
-    let addmid = app.use.bind(app);
+    //let addmid = app.use.bind(app);
+    let mobj;
 
     if (m.group !== undefined) {
       if (m.group instanceof Array) {
         for (let i=0; i<m.group.length; i++) {
-          addmid(this.getMidwareInstance(m), makeOpts(m.group[i]));
+          mobj = this.getMidwareInstance(m);
+          if (mobj !== null) {
+            app.use(mobj, makeOpts(m.group[i]));
+          }
         }
         return ;
       }
     }
     
     opts = makeOpts(m.group || null);
-    addmid(this.getMidwareInstance(m), opts);
+
+    mobj = this.getMidwareInstance(m);
+    if (mobj) {
+      app.use(mobj, opts);
+    }
   }
 
   loadGroupMidware(app, m, group) {
-    if (!m.name || m.name == '') {
+    if ((!m.name || m.name === '') && !m.middleware) {
       return;
     }
     let opts = {
@@ -393,8 +409,11 @@ class loader {
       opts.pre = true;
     }
 
-    let addmid = app.use.bind(app);
-    addmid(this.getMidwareInstance(m), opts);
+    //let addmid = app.use.bind(app);
+    let mobj = this.getMidwareInstance(m);
+    if (mobj) {
+      app.use(mobj, opts);
+    }
   }
 
   loadFileMidware (app, m, f, group) {
@@ -423,8 +442,11 @@ class loader {
       opts.pre = true;
     }
 
-    let addmid = app.use.bind(app);
-    addmid(this.getMidwareInstance(m), opts);
+    //let addmid = app.use.bind(app);
+    let mobj = this.getMidwareInstance(m);
+    if (mobj) {
+      app.use(mobj, opts);
+    }
   }
 
   /**
