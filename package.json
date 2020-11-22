@@ -1,6 +1,6 @@
 {
   "name": "titbit-loader",
-  "version": "21.3.1",
+  "version": "21.3.2",
   "description": "loader for titbit framework",
   "main": "loader.js",
   "scripts": {
@@ -14,9 +14,7 @@
     "tit",
     "titbit",
     "titbit-loader",
-    "loader",
-    "doio",
-    "doio-loader"
+    "loader"
   ],
   "author": "BraveWang",
   "license": "GPL-3.0",
