@@ -266,25 +266,21 @@ class loader {
         case 'PATCH':
         case 'HEAD':
         case 'TRACE':
-          app.router[ cob.method.toLowerCase() ](
-            cf.filegroup,
-            cob.callback.bind(cob), {
-              name: cname,
-              group: group
-            });
+          if (cob.callback 
+              && typeof cob.callback === 'function' 
+              && cob.callback.constructor.name==='AsyncFunction')
+          {
+              app.router[ cob.method.toLowerCase() ](
+                cf.filegroup,
+                cob.callback.bind(cob), {
+                  name: cname,
+                  group: group
+              });
+          }
           break;
         default:;
       }
-      if (cob.router !== undefined && typeof cob.router === 'object') {
-        for (let k in cob.router) {
-          if (cob[k] !== undefined && typeof cob[k] === 'function') {
-            if (app.router.methods.indexOf(cob.router[k].toUpperCase()) >= 0)
-            {
-              app.router[cob.router[k].toLowerCase()](cf.filegroup+'/'+k, cob[k]);
-            }
-          }
-        }
-      }
+      
     }
 
     if (cob.__mid && typeof cob.__mid === 'function') {
@@ -364,7 +360,7 @@ class loader {
         op.method = m.method;
       }
       if (groupname) {
-        op.group = groupname;
+        op.group = groupname[0] === '/' ? groupname : `/${groupname}`;
       }
 
       if (m.pre) {
@@ -482,12 +478,26 @@ class loader {
       let mobj = this.mdb ? new m(this.mdb) : new m();
 
       let mname = mfile.substring(0, mfile.length-3);
+      
+      if (mobj.modelName && typeof mobj.modelName === 'string') {
+        mname = mobj.modelName;
+      }
+
+      let outWarning = (text) => {
+        setTimeout(() => {
+          console.error(`    \x1b[7;5;4mWarning: ${text}\x1b[0m`);
+        }, 1280);
+      };
+
       if (this.config.directModel) {
         if (app.service[mname] !== undefined) {
-          console.error(`Warning: model conflict ---- ${mname}.js already set`);
+          outWarning(`model conflict ---- ${mfile}{${mname}} already set`);
         }
         app.service[mname] = mobj;
       } else {
+        if (app.service[this.config.mname][mname] !== undefined) {
+          outWarning(`model conflict ---- ${mfile}{${mname}} already set`);
+        }
         app.service[this.config.mname][mname] = mobj;
       }
     } catch (err) {
