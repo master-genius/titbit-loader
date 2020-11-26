@@ -12,8 +12,7 @@ const fs = require('fs');
  * 并且有可能会有使用prototype，而不是class，所以需要在类中声明类型，如果文件中仅仅是
  * 一个需要引入的函数文件，则只需要在文件最开头加上_
  * 规则：
- *  mode='callback' 需要实例化，并且实例化以后默认使用callback作为回调函数，
- *  mode='restful' RESTFul模式，这种情况，实例化以后使用RESTFul模式对应的方法加载。
+ *  RESTFul模式，实例化以后使用RESTFul模式对应的方法加载。
  * 
  * 不导出模块或类： 
  *  如果不想导出目录或者某一个文件，则需要在文件名称开头加上!。
@@ -180,115 +179,114 @@ class loader {
   }
 
   setRouter (app, cob, cf) {
-    if (cob.mode === undefined || cob.mode !== 'callback') {
+    if (cob.mode === undefined) {
       cob.mode = 'restful';
     }
+
     if (cob.routeName === undefined || typeof cob.routeName !== 'object') {
       cob.routeName = {};
     }
 
     var group = cf.dirgroup;
-    var npre = cf.filegroup;
+    let npre = cf.filegroup;
+
     let routeParam = '/:id';
+
     if (cob.param !== undefined && cob.param !== null && typeof cob.param === 'string') {
-      routeParam = cob.param;
-      if (routeParam[0]!== '/') {
+      
+      routeParam = cob.param.trim();
+
+      if (routeParam.length > 0 && routeParam[0] !== '/') {
         routeParam = `/${routeParam}`;
+      }
+
+    }
+
+    if (cob.post !== undefined && typeof cob.post === 'function') {
+      app.router.post(
+        `${cf.filegroup}${this.config.postArgs ? routeParam : ''}`,
+        cob.post.bind(cob),
+        {
+          name: cob.routeName.post || `${npre}/post`,
+          group: group
+        }
+      );
+    }
+
+    if (cob.delete !== undefined && typeof cob.delete === 'function') {
+      app.router.delete(
+        `${cf.filegroup}${routeParam}`,
+        cob.delete.bind(cob),
+        {
+          name: cob.routeName.delete || `${npre}/delete`,
+          group: group
+        }
+      );
+    }
+
+    if (cob.put !== undefined && typeof cob.put === 'function') {
+      app.router.put(
+        `${cf.filegroup}${routeParam}`,
+        cob.put.bind(cob),
+        {
+          name: cob.routeName.put || `${npre}/put`,
+          group: group
+        }
+      );
+    }
+
+    if (cob.get !== undefined && typeof cob.get === 'function') {
+      app.router.get(
+        `${cf.filegroup}${routeParam}`,
+        cob.get.bind(cob),
+        {
+          name: cob.routeName.get || `${npre}/get`,
+          group: group
+        }
+      );
+      //主页只支持GET请求
+      if (this.config.homeFile === cf.pathname) {
+        app.router.get('/', cob.get.bind(cob), {
+          name: 'home',
+          group: group
+        });
       }
     }
 
-    if (cob.mode === 'restful') {
-      
-      if (cob.post !== undefined && typeof cob.post === 'function') {
-        app.router.post(`${cf.filegroup}${this.config.postArgs ? routeParam : ''}`, cob.post.bind(cob),{
-          name: cob.routeName.post || `${npre}/post`,
-          group: group
-        });
-      }
-      if (cob.delete !== undefined && typeof cob.delete === 'function') {
-        app.router.delete(`${cf.filegroup}${routeParam}`, cob.delete.bind(cob),{
-          name: cob.routeName.delete || `${npre}/delete`,
-          group: group
-        });
-      }
-      if (cob.put !== undefined && typeof cob.put === 'function') {
-        app.router.put(`${cf.filegroup}${routeParam}`, cob.put.bind(cob),{
-          name: cob.routeName.put || `${npre}/put`,
-          group: group
-        });
-      }
+    if (cob.list !== undefined && typeof cob.list === 'function') {
+      app.router.get(`${cf.filegroup}`, cob.list.bind(cob),{
+        name: cob.routeName.list || `${npre}/list`,
+        group: group
+      });
+    }
 
-      if (cob.get !== undefined && typeof cob.get === 'function') {
-        app.router.get(`${cf.filegroup}${routeParam}`, cob.get.bind(cob),{
-          name: cob.routeName.get || `${npre}/get`,
-          group: group
-        });
-        //主页只支持GET请求
-        if (this.config.homeFile === cf.pathname) {
-          app.router.get('/', cob.get.bind(cob), {
-            name: 'home',
-            group: group
-          });
-        }
-      }
-      if (cob.list !== undefined && typeof cob.list === 'function') {
-        app.router.get(`${cf.filegroup}`, cob.list.bind(cob),{
-          name: cob.routeName.list || `${npre}/list`,
-          group: group
-        });
-      }
+    if (cob.patch !== undefined && typeof cob.patch === 'function') {
+      app.router.patch(`${cf.filegroup}`, cob.patch.bind(cob),{
+        name: cob.routeName.patch || `${npre}/patch`,
+        group: group
+      });
+    }
 
-      if (cob.patch !== undefined && typeof cob.patch === 'function') {
-        app.router.patch(`${cf.filegroup}`, cob.patch.bind(cob),{
-          name: cob.routeName.patch || `${npre}/patch`,
-          group: group
-        });
-      }
+    if (cob.options !== undefined && typeof cob.options === 'function') {
+      app.router.options(`${cf.filegroup}${routeParam}`, cob.options.bind(cob),{
+        name: cob.routeName.options || `${npre}/options`,
+        group: group
+      });
+    }
 
-      if (cob.options !== undefined && typeof cob.options === 'function') {
-        app.router.options(`${cf.filegroup}${routeParam}`, cob.options.bind(cob),{
-          name: cob.routeName.options || `${npre}/options`,
-          group: group
-        });
-      }
-      
-    } else {
-      if (cob.method === undefined) {
-        cob.method = 'GET';
-      }
-      let cname = `${npre}`;
-      switch (cob.method) {
-        case 'GET':
-        case 'POST':
-        case 'DELETE':
-        case 'PUT':
-        case 'OPTIONS':
-        case 'PATCH':
-        case 'HEAD':
-        case 'TRACE':
-          if (cob.callback 
-              && typeof cob.callback === 'function' 
-              && cob.callback.constructor.name==='AsyncFunction')
-          {
-              app.router[ cob.method.toLowerCase() ](
-                cf.filegroup,
-                cob.callback.bind(cob), {
-                  name: cname,
-                  group: group
-              });
-          }
-          break;
-        default:;
-      }
-      
+    if (cob.head !== undefined && typeof cob.head === 'function') {
+      app.router.head(`${cf.filegroup}${routeParam}`, cob.head.bind(cob),{
+        name: cob.routeName.head || `${npre}/head`,
+        group: group
+      });
     }
 
     if (cob.__mid && typeof cob.__mid === 'function') {
       var mid = cob.__mid();
-      if (mid) {
+      if (mid && (mid instanceof Array) ) {
         this.fileMidTable[cf.filegroup] = {
-          group:group,
-          mid:mid
+          group : group,
+          mid   : mid
         };
       }
     }
@@ -309,10 +307,11 @@ class loader {
       }
     }
 
-    for(var k in this.fileMidTable) {
+    for(let k in this.fileMidTable) {
       for (let i=0; i<this.fileMidTable[k].mid.length; i++) {
-        this.loadFileMidware(app, 
-          this.fileMidTable[k].mid[i], k, 
+        this.loadFileMidware( app, 
+          this.fileMidTable[k].mid[i],
+          k, 
           this.fileMidTable[k].group
         );
       }
@@ -329,7 +328,7 @@ class loader {
     }
 
     if (typeof m.name !== 'string' || m.name.trim() === '') {
-      console.error(`--Middleware Error--: less name.`);
+      console.error(`--Middleware Error--: less name.`, m);
       return null;
     }
 
@@ -342,7 +341,7 @@ class loader {
       } else {
         mt = new tmp(m.args);
       }
-      //bind this
+      
       return mt.middleware.bind(mt);
     } else {
       mt = require(this.config.midwarePath+'/'+m.name);
@@ -368,7 +367,7 @@ class loader {
       }
       return op;
     };
-    //let addmid = app.use.bind(app);
+
     let mobj;
 
     if (m.group !== undefined) {
@@ -420,8 +419,7 @@ class loader {
     if (m.path === undefined) {
       opts.name = [`${f}/post`, `${f}/put`,
         `${f}/delete`,`${f}/get`,`${f}/list`,
-        `${f}/options`, `${f}/patch`, `${f}/head`,
-        `${f}/callback`
+        `${f}/options`, `${f}/patch`, `${f}/head`
       ];
     } else {
       if (typeof m.path === 'string') {
@@ -479,7 +477,7 @@ class loader {
 
       let mname = mfile.substring(0, mfile.length-3);
       
-      if (mobj.modelName && typeof mobj.modelName === 'string') {
+      if (mobj.modelName && typeof mobj.modelName === 'string' && mobj.modelName.length > 0) {
         mname = mobj.modelName;
       }
 
@@ -543,8 +541,13 @@ class loader {
         );
 
       } else if (files[i].isFile()) {
-        if (files[i].name[0] === '!') {continue;}
-        if (files[i].name.length < 4) { continue; }
+        if (files[i].name[0] === '!') {
+          continue;
+        }
+
+        if (files[i].name.length < 4) {
+          continue;
+        }
 
         if (files[i].name.substring(files[i].name.length-3) !== '.js') {
           continue;
