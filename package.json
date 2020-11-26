@@ -1,6 +1,6 @@
 {
   "name": "titbit-loader",
-  "version": "21.3.2",
+  "version": "21.3.3",
   "description": "loader for titbit framework",
   "main": "loader.js",
   "scripts": {
@@ -14,8 +14,12 @@
     "tit",
     "titbit",
     "titbit-loader",
-    "loader"
+    "http",
+    "loader",
+    "web",
+    "framework"
   ],
+  
   "author": "BraveWang",
   "license": "GPL-3.0",
   "bugs": {
