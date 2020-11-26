@@ -287,6 +287,33 @@ module.exports = [
 
 ```
 
+## 只加载model并指定model路径
+
+可以通过modelPath设定model所在目录，并通过loadModel加载。
+
+``` JavaScript
+
+const titbit = require('titbit')
+const tbloader = require('titbit-loader')
+
+const app = new titbit({
+  debug: true
+})
+
+var tbl = new tbloader({
+  modelPath : 'dbmodel',
+  //指定挂载到app.service.dm上，这会创建dm对象并进行挂载。
+  mname : 'dm',
+})
+
+//只是加载model类。
+tbl.loadModel(app)
+
+app.run(1234)
+
+```
+
+
 ## 高级功能
 
 这部分功能相对要麻烦点，但是可以应对比较复杂的情况。
