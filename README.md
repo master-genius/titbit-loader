@@ -313,6 +313,58 @@ app.run(1234)
 
 ```
 
+## 指定中间件的加载环境
+
+如果要区分开发模式还是发布模式，并根据不同情况加载中间件，可以使用mode属性，这个功能在v21.4.0开始支持。
+
+mode有2个可选的值：test | dev。都表示在对应的开发环境才会加载。没有mode，则会直接加载，不做任何区分。
+
+mode为 online 则表示只有在生产环境才会加载执行，开发测试模式不会加载。
+
+这个属性只是指定了加载条件，而对于条件的检测，是titbit框架的实例的service.TEST 或者 service.DEV属性是否存在并为true。
+
+``` JavaScript
+
+//文件__mid.js 
+
+let mt = async (c, next) => {
+  console.log('dev test -- ', c.method, c.path, c.routepath)
+  await next()
+}
+
+module.exports = [
+  {
+    name : 'api-log',
+    mode : 'test'
+  },
+
+  {
+    middleware : mt,
+    mode : 'dev'
+  },
+
+  {
+    name : 'api-limit',
+    mode : 'online'
+  }
+
+]
+
+```
+
+
+这个功能是具备开发性质的，就是这需要你在titbit服务中，只要设置了以下配置：
+
+``` JavaScript
+const app = new titbit()
+
+//相当于app.service.TEST = true
+app.addService('TEST', true)
+
+```
+
+这就表示，会开启测试模式（开发模式）。这个时候，不仅titbit-loader会检测并确定是否加载中间件，还可以在请求上下文中知道应用运行在开发模式。
+
 
 ## 高级功能
 
