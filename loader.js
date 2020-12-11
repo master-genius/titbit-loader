@@ -25,6 +25,12 @@ const fs = require('fs');
  *  默认情况，路由的名称是[目录-文件-方法名称]。
  */
 
+let outWarning = (text) => {
+  setTimeout(() => {
+    console.error(`    \x1b[2;42;31;7m Warning: ${text} \x1b[0m\n`);
+  }, 1280);
+};
+
 class loader {
 
   constructor (options = {}) {
@@ -80,6 +86,8 @@ class loader {
 
     //如果你要在初始化controller时传递参数可以设置此变量，但是目前这个功能还没有开启。
     this.cargs = null;
+
+    this.routepreg = /^[a-z\d\-\_]+$/i;
 
     for (let k in options) {
       
@@ -481,20 +489,14 @@ class loader {
         mname = mobj.modelName;
       }
 
-      let outWarning = (text) => {
-        setTimeout(() => {
-          console.error(`    \x1b[7;5;4mWarning: ${text}\x1b[0m`);
-        }, 1280);
-      };
-
       if (this.config.directModel) {
         if (app.service[mname] !== undefined) {
-          outWarning(`model conflict ---- ${mfile}{${mname}} already set`);
+          outWarning(`model 冲突 ---- ${mfile}{${mname}} 已经设置。`);
         }
         app.service[mname] = mobj;
       } else {
         if (app.service[this.config.mname][mname] !== undefined) {
-          outWarning(`model conflict ---- ${mfile}{${mname}} already set`);
+          outWarning(`model 冲突 ---- ${mfile}{${mname}} 已经设置。`);
         }
         app.service[this.config.mname][mname] = mobj;
       }
@@ -535,6 +537,11 @@ class loader {
             }
         }
 
+        if (this.routepreg.test(files[i].name) === false) {
+          outWarning(`${files[i].name}/ 目录不能有空格换行特殊字符等，仅支持 字母 数字 - _`);
+          continue;
+        }
+
         this.readControllers(cdir+'/'+files[i].name, 
           cfiles, deep+1,
           `${dirgroup}/${files[i].name}`
@@ -563,6 +570,12 @@ class loader {
         }
 
         tmp = this.stripExtName(files[i].name);
+
+        if (this.routepreg.test(tmp) === false) {
+          outWarning(`${files[i].name} 不能有空格换行特殊字符等，仅支持 字母 数字 - _`);
+          continue;
+        }
+
         cfiles[cdir+'/'+files[i].name] = {
           filegroup: dirgroup + '/' + tmp,
           dirgroup: dirgroup || '/',
