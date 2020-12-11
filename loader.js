@@ -27,7 +27,7 @@ const fs = require('fs');
 
 let outWarning = (text) => {
   setTimeout(() => {
-    console.error(`    \x1b[2;42;31;7m Warning: ${text} \x1b[0m\n`);
+    console.error(`    \x1b[2;47;31;7m Warning: ${text} \x1b[0m\n`);
   }, 1280);
 };
 
@@ -191,10 +191,6 @@ class loader {
       cob.mode = 'restful';
     }
 
-    if (cob.routeName === undefined || typeof cob.routeName !== 'object') {
-      cob.routeName = {};
-    }
-
     var group = cf.dirgroup;
     let npre = cf.filegroup;
 
@@ -215,7 +211,7 @@ class loader {
         `${cf.filegroup}${this.config.postArgs ? routeParam : ''}`,
         cob.post.bind(cob),
         {
-          name: cob.routeName.post || `${npre}/post`,
+          name: `${npre}/post`,
           group: group
         }
       );
@@ -226,7 +222,7 @@ class loader {
         `${cf.filegroup}${routeParam}`,
         cob.delete.bind(cob),
         {
-          name: cob.routeName.delete || `${npre}/delete`,
+          name: `${npre}/delete`,
           group: group
         }
       );
@@ -237,7 +233,7 @@ class loader {
         `${cf.filegroup}${routeParam}`,
         cob.put.bind(cob),
         {
-          name: cob.routeName.put || `${npre}/put`,
+          name: `${npre}/put`,
           group: group
         }
       );
@@ -248,7 +244,7 @@ class loader {
         `${cf.filegroup}${routeParam}`,
         cob.get.bind(cob),
         {
-          name: cob.routeName.get || `${npre}/get`,
+          name: `${npre}/get`,
           group: group
         }
       );
@@ -263,28 +259,28 @@ class loader {
 
     if (cob.list !== undefined && typeof cob.list === 'function') {
       app.router.get(`${cf.filegroup}`, cob.list.bind(cob),{
-        name: cob.routeName.list || `${npre}/list`,
+        name: `${npre}/list`,
         group: group
       });
     }
 
     if (cob.patch !== undefined && typeof cob.patch === 'function') {
       app.router.patch(`${cf.filegroup}`, cob.patch.bind(cob),{
-        name: cob.routeName.patch || `${npre}/patch`,
+        name: `${npre}/patch`,
         group: group
       });
     }
 
     if (cob.options !== undefined && typeof cob.options === 'function') {
       app.router.options(`${cf.filegroup}${routeParam}`, cob.options.bind(cob),{
-        name: cob.routeName.options || `${npre}/options`,
+        name: `${npre}/options`,
         group: group
       });
     }
 
     if (cob.head !== undefined && typeof cob.head === 'function') {
       app.router.head(`${cf.filegroup}${routeParam}`, cob.head.bind(cob),{
-        name: cob.routeName.head || `${npre}/head`,
+        name: `${npre}/head`,
         group: group
       });
     }
@@ -349,15 +345,39 @@ class loader {
       } else {
         mt = new tmp(m.args);
       }
-      
+
       return mt.middleware.bind(mt);
+
     } else {
       mt = require(this.config.midwarePath+'/'+m.name);
     }
     return mt;
   }
 
+  _checkMidwareMode (app, m) {
+    if (m.mode !== undefined) {
+      if (m.mode === 'test' || m.mode === 'dev') {
+        if (app.service.TEST === undefined && app.service.DEV === undefined) {
+          //console.log(`不加载中间件`, m);
+          return false;
+        }
+      } else if (m.mode === 'online' || m.mode === 'product') {
+        //只在正式环境加载
+        if (app.service.TEST || app.service.DEV) {
+          //console.log(`测试环境不加载中间件`, m);
+          return false;
+        }
+      }
+    }
+    //console.log('加载···', m);
+    return true;
+  }
+
   loadGlobalMidware (app, m) {
+    //检测是否是开发环境，并确定是否加载中间件。
+    if (this._checkMidwareMode(app, m) === false) {
+      return;
+    }
     
     let opts = null;
 
@@ -399,6 +419,11 @@ class loader {
   }
 
   loadGroupMidware(app, m, group) {
+    
+    if (this._checkMidwareMode(app, m) === false) {
+      return;
+    }
+
     if ((!m.name || m.name === '') && !m.middleware) {
       return;
     }
@@ -419,14 +444,20 @@ class loader {
   }
 
   loadFileMidware (app, m, f, group) {
+    
+    if (this._checkMidwareMode(app, m) === false) {
+      return;
+    }
+
     let opts = {
       group: group,
       name:[],
     };
 
     if (m.path === undefined) {
-      opts.name = [`${f}/post`, `${f}/put`,
-        `${f}/delete`,`${f}/get`,`${f}/list`,
+      opts.name = [
+        `${f}/get`, `${f}/list`, `${f}/post`, `${f}/put`, `${f}/delete`,
+
         `${f}/options`, `${f}/patch`, `${f}/head`
       ];
     } else {
