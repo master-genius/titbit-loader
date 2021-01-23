@@ -497,7 +497,7 @@ class loader {
         }
 
         //!开头的命名不导出
-        if (mlist[i].name[0] === '!') {
+        if (mlist[i].name[0] === '!' || mlist[i].name[0] === '_') {
           continue;
         }
 
