@@ -367,6 +367,7 @@ class loader {
           //console.log(`测试环境不加载中间件`, m);
           return false;
         }
+        return true;
       }
     }
     //console.log('加载···', m);
