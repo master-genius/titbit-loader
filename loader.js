@@ -357,10 +357,10 @@ class loader {
   _checkMidwareMode (app, m) {
     if (m.mode !== undefined) {
       if (m.mode === 'test' || m.mode === 'dev') {
-        if (app.service.TEST === undefined && app.service.DEV === undefined) {
-          //console.log(`不加载中间件`, m);
-          return false;
+        if (app.service.TEST || app.service.DEV) {
+          return true;
         }
+        return false;
       } else if (m.mode === 'online' || m.mode === 'product') {
         //只在正式环境加载
         if (app.service.TEST || app.service.DEV) {
