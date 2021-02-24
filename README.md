@@ -10,6 +10,45 @@
 
 > 此扩展从一开始，不是为了开发单体复杂的软件准备的，只是为了解决在中小规模的应用上，可以方便组织代码结构。但是，做到上百个Model、几百个路由、上百个中间件组装成一个复杂的应用也没有问题。
 
+**注意：使用全局__mid.js加载中间件，可以指定group选项，但是要注意因此导致的OPTIONS请求错误导致的跨域问题，这时候，要求OPTIONS也要针对不同分组添加对应的OPTIONS请求**
+
+示例：
+
+全局__mid.js文件：
+
+```javascript
+
+module.exports = [
+  {
+    name : 'cors',
+    group: ['abc', 'xyz']
+  }
+
+]
+
+```
+
+```javascript
+
+const titbit = require('titbit')
+const tbloader = require('titbit-loader')
+
+let tbl = new tbloader()
+
+const app = new titbit()
+
+app.options('/xyz/*', async c => {}, {group:'xyz'})
+
+app.options('/abc/*', async c => {}, {group:'abc'})
+
+/**
+ * ....
+ * */
+
+app.run(1234)
+
+```
+
 
 使用titbit-loader需要先安装titbit框架：
 
